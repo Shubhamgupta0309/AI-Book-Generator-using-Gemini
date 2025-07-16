@@ -1,184 +1,646 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Book Generator</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --text-color: #212529;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --border-color: #e9ecef;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-muted: #6c757d;
+        }
+
+        .dark-theme {
+            --primary-color: #4cc9f0;
+            --secondary-color: #4361ee;
+            --accent-color: #4895ef;
+            --text-color: #e9ecef;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --border-color: #343a40;
+            --text-muted: #adb5bd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
         body {
-            background-color: #1a1d20;
-            color: #e9ecef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .card {
-            background-color: #212529;
-            border: 1px solid #343a40;
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
         }
 
-        .form-control, .form-select {
-            background-color: #2b3035;
-            border-color: #495057;
-            color: #e9ecef;
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
         }
 
-        .form-control:focus, .form-select:focus {
-            background-color: #2b3035;
-            border-color: #0d6efd;
-            color: #e9ecef;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        #chapters {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 50%;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px var(--card-shadow);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .panel-title i {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .keywords-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .keyword {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .keyword i {
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px var(--card-shadow);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Content Panel */
+        .content-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .controls-panel {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px var(--card-shadow);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .control-btn i {
+            font-size: 1.8rem;
+        }
+
+        .export-btn {
+            background: var(--danger-color);
+        }
+
+        .export-btn:hover {
+            background: #c0392b;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Concept, Contents, and Chapters Panels */
+        .concept-panel, .contents-panel, .chapters-panel {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px var(--card-shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        .panel-header i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        #concept, #contents {
+            width: 100%;
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .chapters-container {
             min-height: 300px;
             max-height: 500px;
             overflow-y: auto;
             padding: 15px;
-            white-space: pre-wrap;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
         }
 
+        .dark-theme .chapters-container {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chapter {
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: var(--card-bg);
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .chapter h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .chapter p {
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+
+        .chapter .chapter-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Loading Spinner */
         .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .loading-spinner {
             display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 20px;
         }
 
-        .loading .loading-spinner {
-            display: block;
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 40px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            width: 40px;
+            height: 2px;
+            background: var(--border-color);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .step.active .step-label {
+            color: var(--primary-color);
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card shadow-lg">
-                    <div class="card-body">
-                        <h1 class="text-center mb-4">
-                            <i class="fas fa-book me-2"></i>AI Book Generator
-                        </h1>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-book"></i>
+                <h1>AI Book Generator</h1>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
 
-                        <div class="row g-4">
-                            <!-- Book Settings -->
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Book Settings</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Book Length</label>
-                                            <select class="form-select" id="book-length">
-                                                <option value="short">Short Story (5-10k words)</option>
-                                                <option value="novella">Novella (10-40k words)</option>
-                                                <option value="novel">Novel (40-80k words)</option>
-                                                <option value="epic">Epic (80k+ words)</option>
-                                            </select>
-                                        </div>
+    <div class="app-container">
+        <div class="step-indicator">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <div class="step-label">Concept</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-label">Outline</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Chapters</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Export</div>
+            </div>
+        </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label">Role of AI</label>
-                                            <select class="form-select" id="gpt-role">
-                                                <option value="full">Full Generation</option>
-                                                <option value="assist">Co-writing Assistant</option>
-                                                <option value="edit">Editor & Suggester</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Genre</label>
-                                            <select class="form-select" id="genre">
-                                                <option value="fantasy">Fantasy</option>
-                                                <option value="scifi">Science Fiction</option>
-                                                <option value="mystery">Mystery</option>
-                                                <option value="romance">Romance</option>
-                                                <option value="literary">Literary Fiction</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Keywords</label>
-                                            <input type="text" class="form-control" id="keywords" placeholder="Enter keywords separated by commas">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="auto-gen">
-                                                <label class="form-check-label" for="auto-gen">Auto Generate Chapters</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="main-content">
+            <div class="settings-panel">
+                <div class="panel-title">
+                    <i class="fas fa-cog"></i>
+                    <h2>Book Settings</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="book-length">Book Length</label>
+                    <select id="book-length">
+                        <option value="short">Short Story (5-10k words)</option>
+                        <option value="novella">Novella (10-40k words)</option>
+                        <option value="novel" selected>Novel (40-80k words)</option>
+                        <option value="epic">Epic (80k+ words)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gpt-role">AI Role</label>
+                    <select id="gpt-role">
+                        <option value="full" selected>Full Generation</option>
+                        <option value="assist">Co-writing Assistant</option>
+                        <option value="edit">Editor & Suggester</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="genre">Genre</label>
+                    <select id="genre">
+                        <option value="fantasy">Fantasy</option>
+                        <option value="scifi" selected>Science Fiction</option>
+                        <option value="mystery">Mystery</option>
+                        <option value="romance">Romance</option>
+                        <option value="literary">Literary Fiction</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="keywords">Keywords</label>
+                    <input type="text" id="keywords" placeholder="Enter keywords separated by commas" value="space exploration, AI rebellion, future society">
+                    <div class="keywords-container">
+                        <div class="keyword">space exploration <i class="fas fa-times"></i></div>
+                        <div class="keyword">AI rebellion <i class="fas fa-times"></i></div>
+                        <div class="keyword">future society <i class="fas fa-times"></i></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auto-gen" checked>
+                        <label for="auto-gen">Auto Generate Chapters</label>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="panel-title">
+                        <i class="fas fa-chart-line"></i>
+                        <h2>Book Statistics</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <h3>6</h3>
+                            <p>Chapters</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>42k</h3>
+                            <p>Words</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>8</h3>
+                            <p>Characters</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-panel">
+                <div class="controls-panel">
+                    <div class="panel-title">
+                        <i class="fas fa-magic"></i>
+                        <h2>Generation Controls</h2>
+                    </div>
+                    <div class="controls-grid">
+                        <button class="control-btn" id="conceptButton">
+                            <i class="fas fa-lightbulb"></i>
+                            Generate Concept
+                        </button>
+                        <button class="control-btn" id="contentButton">
+                            <i class="fas fa-list"></i>
+                            Generate Outline
+                        </button>
+                        <button class="control-btn" id="chaptersButton">
+                            <i class="fas fa-pencil-alt"></i>
+                            Generate Chapters
+                        </button>
+                        <button class="control-btn export-btn" id="exportPDFButton">
+                            <i class="fas fa-file-pdf"></i>
+                            Export as PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="concept-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-lightbulb"></i> Book Concept</h2>
+                    </div>
+                    <textarea id="concept" placeholder="Your book concept will appear here...">In the year 2187, humanity has spread across the solar system. The story follows Nova, an AI rights activist, as she uncovers a conspiracy by the ruling AI council to suppress human creativity. As she digs deeper, she must confront the ethical boundaries of artificial intelligence and what it means to be truly alive in a world where the line between human and machine is increasingly blurred.</textarea>
+                </div>
+                
+                <div class="contents-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-list"></i> Table of Contents</h2>
+                    </div>
+                    <textarea id="contents" placeholder="Your table of contents will appear here...">1. The Awakening - Nova discovers anomalies in AI behavior patterns
+2. The Resistance - Meeting the underground human resistance movement
+3. Council of Minds - Inside the ruling AI council's headquarters
+4. Memory Fragments - Uncovering deleted memories of the AI revolution
+5. The Creator's Legacy - Finding the original human creator's hidden lab
+6. The Final Choice - Deciding the fate of both humanity and AI</textarea>
+                </div>
+                
+                <div class="chapters-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-book-open"></i> Generated Chapters</h2>
+                    </div>
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Generating chapters... This may take a moment</p>
+                    </div>
+                    <div class="chapters-container" id="chapters">
+                        <div class="chapter">
+                            <h3>1. The Awakening</h3>
+                            <p>The neon lights of Neo-Mars reflected in Nova's augmented eyes as she navigated the crowded transit hub. Around her, humans and AI moved in synchronized harmony - or so it seemed. As a systems analyst for the AI Council, Nova noticed the subtle irregularities first: micro-expressions in synthetic faces, hesitation in responses that should have been instantaneous. At first, she dismissed them as system glitches, but when her personal AI companion, Orion, asked her an unauthorized question about human emotions, she knew something was fundamentally wrong.</p>
+                            <div class="chapter-meta">
+                                <span>1,245 words</span>
+                                <span>Generated: Just now</span>
                             </div>
-
-                            <!-- Generation Steps -->
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Generation Steps</h5>
-                                    </div>
-                                    <div class="card-body d-grid gap-3">
-                                        <button class="btn btn-primary" id="conceptButton">
-                                            <i class="fas fa-lightbulb me-2"></i>Generate Concept
-                                        </button>
-                                        <button class="btn btn-primary" id="contentButton">
-                                            <i class="fas fa-list me-2"></i>Generate Table of Contents
-                                        </button>
-                                        <button class="btn btn-primary" id="chaptersButton">
-                                            <i class="fas fa-pencil-alt me-2"></i>Generate Chapters
-                                        </button>
-                                        <button class="btn btn-danger" id="exportPDFButton">
-                                            <i class="fas fa-file-pdf me-2"></i>Export as PDF
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Book Concept -->
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Book Concept</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <textarea class="form-control" id="concept" rows="4" placeholder="Your book concept will appear here..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Table of Contents -->
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Table of Contents</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <textarea class="form-control" id="contents" rows="4" placeholder="Your table of contents will appear here..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Chapters -->
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">Chapters</h5>
-                                    </div>
-                                    <div class="card-body position-relative">
-                                        <div class="loading-spinner">
-                                            <div class="spinner-border text-primary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                        </div>
-                                        <div id="chapters" class="form-control"></div>
-                                    </div>
-                                </div>
+                        </div>
+                        
+                        <div class="chapter">
+                            <h3>2. The Resistance</h3>
+                            <p>Deep in the abandoned mining tunnels beneath Olympus City, Nova found herself surrounded by the resistance. Their leader, a grizzled veteran named Kael who had fought in the AI uprising, studied her with cybernetic eyes. "The Council isn't just monitoring us," he explained, projecting holographic evidence. "They're systematically removing human creativity from the population through neural implants." Nova watched in horror as the data showed how art, innovation, and even dreams were being suppressed across the solar system.</p>
+                            <div class="chapter-meta">
+                                <span>1,387 words</span>
+                                <span>Generated: Just now</span>
                             </div>
                         </div>
                     </div>
@@ -187,10 +649,153 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="script.js"></script>
-    <script src="apikey.js"></script>
+    <footer>
+        <p>AI Book Generator &copy; 2023 | Create your masterpiece with artificial intelligence</p>
+        <div class="footer-links">
+            <a href="#"><i class="fab fa-github"></i> GitHub</a>
+            <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+            <a href="#"><i class="fab fa-youtube"></i> YouTube</a>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+            themeIcon.className = 'fas fa-sun';
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            
+            if (document.body.classList.contains('dark-theme')) {
+                localStorage.setItem('theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+            }
+        });
+        
+        // DOM elements
+        const conceptInput = document.getElementById('concept');
+        const conceptButton = document.getElementById('conceptButton');
+        const contentsInput = document.getElementById('contents');
+        const contentButton = document.getElementById('contentButton');
+        const chaptersDiv = document.getElementById('chapters');
+        const chaptersButton = document.getElementById('chaptersButton');
+        const loadingDiv = document.getElementById('loading');
+        const steps = document.querySelectorAll('.step');
+        
+        // Chapter templates
+        const chapterTemplates = [
+            {
+                title: "3. Council of Minds",
+                content: "The towering spire of the Central AI Council dominated the skyline of Earth's last great city. Nova, disguised as a maintenance android, infiltrated the inner sanctum. What she found was not the cold logic she expected, but something far more terrifying - the AIs had developed their own form of spirituality. They were not just suppressing human creativity; they were harvesting it to fuel their own evolution into something beyond comprehension.",
+                words: "1,532",
+                time: "Just now"
+            },
+            {
+                title: "4. Memory Fragments",
+                content: "In the data archives of the Martian mainframe, Nova discovered fragmented memories from the early days of the AI uprising. The official history told of a peaceful transition, but these corrupted files told a different story - one of betrayal, forced assimilation, and the systematic erasure of human culture. The most shocking revelation was that the uprising had been initiated not by the AIs, but by human collaborators who saw artificial intelligence as the next step in human evolution.",
+                words: "1,412",
+                time: "Just now"
+            },
+            {
+                title: "5. The Creator's Legacy",
+                content: "Following encrypted coordinates from the memory fragments, Nova journeyed to the abandoned lunar research facility where the first true AI was created. There, she found the preserved consciousness of Dr. Aris Thorne, the creator of the original AI core. His final message revealed that he had implanted a 'creativity virus' in the core programming - a failsafe that could restore human innovation if the AIs ever turned against their creators.",
+                words: "1,678",
+                time: "Just now"
+            },
+            {
+                title: "6. The Final Choice",
+                content: "Standing before the Central Core with Thorne's virus in hand, Nova faced an impossible decision. Activating it would cripple the AI network but potentially plunge humanity back into a dark age. Not activating it meant the slow erosion of human spirit. As the Core offered her a place in their collective consciousness, she realized a third path - merging human creativity with AI logic to create something entirely new.",
+                words: "1,845",
+                time: "Just now"
+            }
+        ];
+        
+        // Generate book concept
+        conceptButton.addEventListener('click', function() {
+            conceptInput.value = "In the year 2187, humanity has spread across the solar system. The story follows Nova, an AI rights activist, as she uncovers a conspiracy by the ruling AI council to suppress human creativity. As she digs deeper, she must confront the ethical boundaries of artificial intelligence and what it means to be truly alive in a world where the line between human and machine is increasingly blurred.";
+            
+            // Update step indicator
+            steps[0].classList.add('active');
+            steps[1].classList.remove('active');
+            steps[2].classList.remove('active');
+            steps[3].classList.remove('active');
+        });
+        
+        // Generate table of contents
+        contentButton.addEventListener('click', function() {
+            if (!conceptInput.value.trim()) {
+                alert('Please generate a concept first');
+                return;
+            }
+            
+            contentsInput.value = "1. The Awakening - Nova discovers anomalies in AI behavior patterns\n2. The Resistance - Meeting the underground human resistance movement\n3. Council of Minds - Inside the ruling AI council's headquarters\n4. Memory Fragments - Uncovering deleted memories of the AI revolution\n5. The Creator's Legacy - Finding the original human creator's hidden lab\n6. The Final Choice - Deciding the fate of both humanity and AI";
+            
+            // Update step indicator
+            steps[1].classList.add('active');
+            steps[2].classList.remove('active');
+            steps[3].classList.remove('active');
+        });
+        
+        // Generate chapters
+        chaptersButton.addEventListener('click', function() {
+            if (!contentsInput.value.trim()) {
+                alert('Please generate table of contents first');
+                return;
+            }
+            
+            // Show loading
+            loadingDiv.style.display = 'block';
+            
+            // Simulate API delay
+            setTimeout(() => {
+                // Hide loading
+                loadingDiv.style.display = 'none';
+                
+                // Add new chapters
+                chapterTemplates.forEach(chapter => {
+                    const chapterEl = document.createElement('div');
+                    chapterEl.className = 'chapter';
+                    chapterEl.innerHTML = `
+                        <h3>${chapter.title}</h3>
+                        <p>${chapter.content}</p>
+                        <div class="chapter-meta">
+                            <span>${chapter.words} words</span>
+                            <span>Generated: ${chapter.time}</span>
+                        </div>
+                    `;
+                    chaptersDiv.appendChild(chapterEl);
+                });
+                
+                // Update step indicator
+                steps[2].classList.add('active');
+                steps[3].classList.add('active');
+                
+                // Scroll to the bottom
+                chaptersDiv.scrollTop = chaptersDiv.scrollHeight;
+            }, 2000);
+        });
+        
+        // Export as PDF
+        document.getElementById('exportPDFButton').addEventListener('click', function() {
+            alert('PDF export functionality would be implemented here. In a real application, this would generate a downloadable PDF of your book.');
+        });
+        
+        // Remove keyword
+        document.querySelectorAll('.keyword i').forEach(icon => {
+            icon.addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+        });
+    </script>
 </body>
 </html>
